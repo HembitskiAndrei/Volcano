@@ -11,7 +11,6 @@ import {
 } from "../utils/createSplashParticles";
 import { textureSettings } from "../utils/textureSettings";
 import { setMeshEmitter } from "../utils/setMeshEmitter";
-import { TrailEffect } from "../objects/TrailEffect";
 
 export default class MainScene extends BABYLON.Scene {
   engine: BABYLON.Engine;
@@ -267,9 +266,6 @@ export default class MainScene extends BABYLON.Scene {
       false,
       false
     );
-
-    // const trail = new TrailEffect(new BABYLON.Vector3(10, 10, 10), this);
-    // trail.start();
 
     // BABYLON.ParticleHelper.CreateAsync("explode", this).then(set => {
       smokeTextureTask.onSuccess = task => {
