@@ -2,9 +2,16 @@ import * as BABYLON from "@babylonjs/core";
 import { GLTFFileLoader, GLTFLoaderAnimationStartMode } from "@babylonjs/loaders/glTF";
 import Camera from "../objects/Camera";
 import LavaMaterial from "../objects/materials/LavaMaterial";
-import { createSplashPArticles, setupAnimationSheet, createLakeSplashPArticles, createDownSplashPArticles } from "../utils/createSplashParticles";
+import {
+  createSplashPArticles,
+  setupAnimationSheet,
+  createLakeSplashPArticles,
+  createDownSplashPArticles,
+  createSmokePArticles,
+} from "../utils/createSplashParticles";
 import { textureSettings } from "../utils/textureSettings";
 import { setMeshEmitter } from "../utils/setMeshEmitter";
+import { TrailEffect } from "../objects/TrailEffect";
 
 export default class MainScene extends BABYLON.Scene {
   engine: BABYLON.Engine;
@@ -50,14 +57,10 @@ export default class MainScene extends BABYLON.Scene {
     this.imageProcessingConfiguration.exposure = 1.5;
     this.imageProcessingConfiguration.contrast = 1.5;
 
-    pipeline.samples = 8;
-
-    pipeline.fxaaEnabled = true;
-
     pipeline.bloomEnabled = true;
     pipeline.bloomThreshold = 0.8;
     pipeline.bloomWeight = 0.25;
-    pipeline.bloomKernel = 128;
+    pipeline.bloomKernel = 32;
     pipeline.bloomScale = 0.5;
 
     const light = new BABYLON.DirectionalLight(
@@ -66,6 +69,20 @@ export default class MainScene extends BABYLON.Scene {
       this
     );
     light.intensity = 1.0;
+
+    const optionsOptimizer = new BABYLON.SceneOptimizerOptions(60, 5000);
+
+    let priority = 0;
+    optionsOptimizer.addOptimization(new BABYLON.MergeMeshesOptimization(priority));
+    priority++;
+    optionsOptimizer.addOptimization(new BABYLON.PostProcessesOptimization(priority));
+    priority++;
+    optionsOptimizer.addOptimization(new BABYLON.RenderTargetsOptimization(priority));
+    priority++;
+    optionsOptimizer.addOptimization(new BABYLON.TextureOptimization(priority));
+    priority++;
+    optionsOptimizer.addOptimization(new BABYLON.HardwareScalingOptimization(priority));
+    const optimizer = new BABYLON.SceneOptimizer(this, optionsOptimizer);
 
     const rightSplashParticles = createSplashPArticles(this, 3, Math.PI / 4);
     const leftSplashParticles = createSplashPArticles(this, 2, Math.PI / 6);
@@ -85,6 +102,13 @@ export default class MainScene extends BABYLON.Scene {
     alternativeLake1SplashParticles.billboardMode = BABYLON.ParticleSystem.BILLBOARDMODE_STRETCHED;
     alternativeLake1SplashParticles.minInitialRotation = -Math.PI;
     alternativeLake1SplashParticles.maxInitialRotation = Math.PI;
+
+    const smokeParticles = createSmokePArticles(this, 2.5, 1);
+
+    const ventParticles = createSplashPArticles(this, 3, Math.PI / 4);
+    ventParticles.emitRate = 50;
+    ventParticles.renderingGroupId = 1;
+    ventParticles.blendMode = BABYLON.ParticleSystem.BLENDMODE_STANDARD;
 
     const lavaMaterial = new LavaMaterial("LavaMaterial");
     const lakeMaterial = new LavaMaterial("LakeMaterial");
@@ -193,6 +217,7 @@ export default class MainScene extends BABYLON.Scene {
       false
     );
     splashTextureTask.onSuccess = task => {
+      setupAnimationSheet(ventParticles, task.texture, 512, 512, 8, 8, 1, false);
       setupAnimationSheet(rightSplashParticles, task.texture, 512, 512, 8, 8, 1, false);
       setupAnimationSheet(leftSplashParticles, task.texture, 512, 512, 8, 8, 1, false);
       setupAnimationSheet(downSplashParticles, task.texture, 512, 512, 8, 8, 1, false);
@@ -243,23 +268,29 @@ export default class MainScene extends BABYLON.Scene {
       false
     );
 
-    BABYLON.ParticleHelper.CreateAsync("explode", this).then(set => {
+    // const trail = new TrailEffect(new BABYLON.Vector3(10, 10, 10), this);
+    // trail.start();
+
+    // BABYLON.ParticleHelper.CreateAsync("explode", this).then(set => {
       smokeTextureTask.onSuccess = task => {
-        set.systems[0]["subEmitters"][0][1].particleSystem.particleTexture = task.texture;
-        set.systems[1].particleTexture = task.texture;
-        set.systems[2].particleTexture = task.texture;
-        set.systems[3].particleTexture = task.texture;
-        set.start();
+        // set.systems[0]["subEmitters"][0][1].particleSystem.particleTexture = task.texture;
+        // set.systems[1].particleTexture = task.texture;
+        // set.systems[2].particleTexture = task.texture;
+        // set.systems[3].particleTexture = task.texture;
+        // set.start();
+
+        setupAnimationSheet(smokeParticles, task.texture, 512, 512, 8, 8, 5, true);
       };
 
-      flareTextureTask.onSuccess = task => {
-        set.systems[0].particleTexture = task.texture;
-      };
-
-      flameBlastTextureTask.onSuccess = task => {
-        set.systems[0]["subEmitters"][0][0].particleSystem.particleTexture = task.texture;
-      };
-    });
+      // flareTextureTask.onSuccess = task => {
+      //   set.systems[0].particleTexture = task.texture;
+      // };
+      //
+      // flameBlastTextureTask.onSuccess = task => {
+      //   set.systems[0]["subEmitters"][0][0].particleSystem.particleTexture = task.texture;
+        // setupAnimationSheet(fireballParticles, task.texture, 512, 512, 4, 4, 5, true);
+      // };
+    // });
 
     const meshTaskVolcano = this.assetsManager.addContainerTask(
       "meshTaskVolcano",
@@ -348,6 +379,14 @@ export default class MainScene extends BABYLON.Scene {
         new BABYLON.Vector3(0, 1, 0),
         new BABYLON.Vector3(-1, 1, 1)
       );
+
+      setMeshEmitter(
+        ventParticles,
+        cup,
+        cup,
+        new BABYLON.Vector3(0, 1, 0),
+        new BABYLON.Vector3(0.5, 1, 0)
+      );
     }
 
     const rightParticlesEmitter = new BABYLON.AbstractMesh("rightParticlesEmitter");
@@ -359,6 +398,9 @@ export default class MainScene extends BABYLON.Scene {
     leftSplashParticles.emitter = leftParticlesEmitter;
 
     this.assetsManager.onFinish = () => {
+      smokeParticles.start();
+      ventParticles.start();
+      // fireballParticles.start();
       (lakeMaterial.getBlockByName("Time") as BABYLON.InputBlock).onValueChangedObservable.add(InputBlock => {
         if (InputBlock.value > 0.75) {
           if (!rightSplashParticles.isStarted()) {
@@ -383,6 +425,12 @@ export default class MainScene extends BABYLON.Scene {
           alternativeLake1SplashParticles.start();
           InputBlock.onValueChangedObservable.clear();
         }
+      })
+      this.executeWhenReady(() => {
+        this.onAfterRenderObservable.addOnce(() => {
+          console.log(optimizer);
+          optimizer.start();
+        })
       })
     };
 

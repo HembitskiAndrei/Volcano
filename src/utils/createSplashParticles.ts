@@ -81,7 +81,7 @@ const colorLakeParticles = (system: BABYLON.ParticleSystem) => {
 };
 
 export const createSplashPArticles = (scene: BABYLON.Scene, radius: number, angle: number) => {
-  const particleSystem = new BABYLON.ParticleSystem("Splash", 100, scene);
+  const particleSystem = new BABYLON.ParticleSystem("Splash", 40, scene);
   colorParticles(particleSystem);
   particleSystem.isLocal = true;
   particleSystem.renderingGroupId = 2;
@@ -98,7 +98,7 @@ export const createSplashPArticles = (scene: BABYLON.Scene, radius: number, angl
   particleSystem.minLifeTime = 1.0;
   particleSystem.maxLifeTime = 1.0;
 
-  particleSystem.emitRate = 60;
+  particleSystem.emitRate = 20;
 
   particleSystem.minScaleX = 1;
   particleSystem.maxScaleX = 1.5;
@@ -125,7 +125,7 @@ export const createSplashPArticles = (scene: BABYLON.Scene, radius: number, angl
 }
 
 export const createDownSplashPArticles = (scene: BABYLON.Scene, radius: number) => {
-  const particleSystem = new BABYLON.ParticleSystem("Splash", 100, scene);
+  const particleSystem = new BABYLON.ParticleSystem("Splash", 20, scene);
   colorLakeParticles(particleSystem);
   particleSystem.isLocal = true;
   particleSystem.renderingGroupId = 2;
@@ -142,7 +142,7 @@ export const createDownSplashPArticles = (scene: BABYLON.Scene, radius: number) 
   particleSystem.minLifeTime = 2.0;
   particleSystem.maxLifeTime = 2.0;
 
-  particleSystem.emitRate = 30;
+  particleSystem.emitRate = 20;
 
   particleSystem.minScaleX = 1;
   particleSystem.maxScaleX = 1.5;
@@ -169,7 +169,7 @@ export const createDownSplashPArticles = (scene: BABYLON.Scene, radius: number) 
 }
 
 export const createLakeSplashPArticles = (scene: BABYLON.Scene, radius: number, angle: number) => {
-  const particleSystem = new BABYLON.ParticleSystem("LakeSplash", 100, scene);
+  const particleSystem = new BABYLON.ParticleSystem("LakeSplash", 10, scene);
   colorLakeParticles(particleSystem);
   particleSystem.isLocal = true;
   particleSystem.renderingGroupId = 2;
@@ -193,13 +193,113 @@ export const createLakeSplashPArticles = (scene: BABYLON.Scene, radius: number, 
   particleSystem.minScaleY = 0.75;
   particleSystem.maxScaleY = 1;
 
-  particleSystem.createConeEmitter(radius, angle);
-
   particleSystem.blendMode = BABYLON.ParticleSystem.BLENDMODE_MULTIPLYADD;
 
   particleSystem.minEmitPower = 2.5;
   particleSystem.maxEmitPower = 2.75;
   particleSystem.updateSpeed = 1/60;
+
+  return particleSystem
+}
+
+export const createSmokePArticles = (scene: BABYLON.Scene, radius: number, angle: number) => {
+  const particleSystem = new BABYLON.ParticleSystem("Smoke", 350, scene);
+
+  particleSystem.preWarmCycles = 12;
+  particleSystem.preWarmStepOffset = 4;
+  particleSystem.renderingGroupId = 2;
+
+  particleSystem.emitter = new BABYLON.Vector3(7, 0, 12); // the starting location
+
+  particleSystem.color1 = new BABYLON.Color4(1, 1, 1, 1);
+  particleSystem.color2 = new BABYLON.Color4(1, 1, 1, 1);
+  particleSystem.colorDead = new BABYLON.Color4(1, 1, 1, 0);
+
+  particleSystem.minSize = 5;
+  particleSystem.maxSize = 7;
+
+  particleSystem.minLifeTime = 15;
+  particleSystem.maxLifeTime = 20;
+
+  particleSystem.emitRate = 15;
+
+  particleSystem.minScaleX = 1;
+  particleSystem.maxScaleX = 1;
+  particleSystem.minScaleY = 1;
+  particleSystem.maxScaleY = 1;
+
+  particleSystem.minInitialRotation = -0.7;
+  particleSystem.maxInitialRotation = 0.7;
+
+  particleSystem.gravity = new BABYLON.Vector3(0.1, 0, 0.05);
+
+  particleSystem.noiseStrength = new BABYLON.Vector3(0.2, 0, 0.15);
+
+  particleSystem.createConeEmitter(radius, angle);
+
+  particleSystem.blendMode = BABYLON.ParticleSystem.BLENDMODE_STANDARD;
+
+  particleSystem.minEmitPower = 2.8;
+  particleSystem.maxEmitPower = 4.5;
+  particleSystem.updateSpeed = 1/60;
+
+  particleSystem.addColorGradient(0.0, new BABYLON.Color4(0.8,0.5,0.25,0.0));
+  particleSystem.addColorGradient(0.1, new BABYLON.Color4(0.8,0.5,0.25,0.25));
+  particleSystem.addColorGradient(0.25, new BABYLON.Color4(0.23,0.23,0.23,0.175));
+  particleSystem.addColorGradient(0.7, new BABYLON.Color4(0.521,0.521,0.521,0.45));
+  particleSystem.addColorGradient(1, new BABYLON.Color4(0.75,0.75,0.75,0.0));
+
+  particleSystem.addSizeGradient(0, 12);
+  particleSystem.addSizeGradient(1, 30);
+  return particleSystem
+}
+
+export const createFireballPArticles = (scene: BABYLON.Scene, radius: number, radiusRange: number) => {
+  const particleSystem = new BABYLON.ParticleSystem("Smoke", 250, scene);
+
+  particleSystem.renderingGroupId = 1;
+
+  particleSystem.emitter = new BABYLON.Vector3(6, 3, 12); // the starting location
+
+  particleSystem.color1 = new BABYLON.Color4(1, 1, 1, 1);
+  particleSystem.color2 = new BABYLON.Color4(1, 1, 1, 1);
+  particleSystem.colorDead = new BABYLON.Color4(1, 1, 1, 0);
+
+  particleSystem.minSize = 2;
+  particleSystem.maxSize = 3;
+
+  particleSystem.minLifeTime = 6;
+  particleSystem.maxLifeTime = 8;
+
+  particleSystem.emitRate = 60;
+
+  particleSystem.minScaleX = 1;
+  particleSystem.maxScaleX = 1;
+  particleSystem.minScaleY = 1;
+  particleSystem.maxScaleY = 1;
+
+  particleSystem.minInitialRotation = -0.7;
+  particleSystem.maxInitialRotation = 0.7;
+
+  particleSystem.gravity = new BABYLON.Vector3(0, 40, 0);
+
+  particleSystem.noiseStrength = new BABYLON.Vector3(10, 10, 10);
+
+  particleSystem.createHemisphericEmitter(radius, radiusRange);
+
+  particleSystem.blendMode = BABYLON.ParticleSystem.BLENDMODE_MULTIPLYADD;
+
+  particleSystem.minEmitPower = 40;
+  particleSystem.maxEmitPower = 60;
+  particleSystem.updateSpeed = 1/60;
+
+  particleSystem.addColorGradient(0.0, new BABYLON.Color4(1,1,1,0.8));
+  particleSystem.addColorGradient(0.4, new BABYLON.Color4(1,1,1,0.6));
+  particleSystem.addColorGradient(1, new BABYLON.Color4(0.5,0.5,0.5,0.0));
+
+  particleSystem.addSizeGradient(0, 10);
+  particleSystem.addSizeGradient(1, 20);
+
 
   return particleSystem
 }

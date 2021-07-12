@@ -3,3 +3,5 @@ export declare const setupAnimationSheet: (system: BABYLON.ParticleSystem, textu
 export declare const createSplashPArticles: (scene: BABYLON.Scene, radius: number, angle: number) => BABYLON.ParticleSystem;
 export declare const createDownSplashPArticles: (scene: BABYLON.Scene, radius: number) => BABYLON.ParticleSystem;
 export declare const createLakeSplashPArticles: (scene: BABYLON.Scene, radius: number, angle: number) => BABYLON.ParticleSystem;
+export declare const createSmokePArticles: (scene: BABYLON.Scene, radius: number, angle: number) => BABYLON.ParticleSystem;
+export declare const createFireballPArticles: (scene: BABYLON.Scene, radius: number, radiusRange: number) => BABYLON.ParticleSystem;
