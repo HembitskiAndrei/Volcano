@@ -954,7 +954,6 @@ class LavaMaterial extends BABYLON.NodeMaterial {
 // Output nodes
     this.addOutputNode(VertexOutput);
     this.addOutputNode(FragmentOutput);
-    this.addOutputNode(Discard);
     this.build();
 
     this.backFaceCulling = false;

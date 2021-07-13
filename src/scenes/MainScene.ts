@@ -8,6 +8,7 @@ import {
   createLakeSplashPArticles,
   createDownSplashPArticles,
   createSmokePArticles,
+  createDebrisPArticles
 } from "../utils/createSplashParticles";
 import { textureSettings } from "../utils/textureSettings";
 import { setMeshEmitter } from "../utils/setMeshEmitter";
@@ -86,18 +87,18 @@ export default class MainScene extends BABYLON.Scene {
     const rightSplashParticles = createSplashPArticles(this, 3, Math.PI / 4);
     const leftSplashParticles = createSplashPArticles(this, 2, Math.PI / 6);
     const downSplashParticles = createDownSplashPArticles(this, 3);
-    const lake0SplashParticles = createLakeSplashPArticles(this, 2, Math.PI / 6);
-    const alternativeLake0SplashParticles = createLakeSplashPArticles(this, 2, Math.PI / 6);
+    const lake0SplashParticles = createLakeSplashPArticles(this);
+    const alternativeLake0SplashParticles = createLakeSplashPArticles(this);
     alternativeLake0SplashParticles.billboardMode = BABYLON.ParticleSystem.BILLBOARDMODE_STRETCHED;
     alternativeLake0SplashParticles.minInitialRotation = -Math.PI;
     alternativeLake0SplashParticles.maxInitialRotation = Math.PI;
-    const lakeSplashParticles = createLakeSplashPArticles(this, 2, Math.PI / 6);
-    const alternativeLakeSplashParticles = createLakeSplashPArticles(this, 2, Math.PI / 6);
+    const lakeSplashParticles = createLakeSplashPArticles(this);
+    const alternativeLakeSplashParticles = createLakeSplashPArticles(this);
     alternativeLakeSplashParticles.billboardMode = BABYLON.ParticleSystem.BILLBOARDMODE_STRETCHED;
     alternativeLakeSplashParticles.minInitialRotation = -Math.PI;
     alternativeLakeSplashParticles.maxInitialRotation = Math.PI;
-    const lake1SplashParticles = createLakeSplashPArticles(this, 2, Math.PI / 6);
-    const alternativeLake1SplashParticles = createLakeSplashPArticles(this, 2, Math.PI / 6);
+    const lake1SplashParticles = createLakeSplashPArticles(this);
+    const alternativeLake1SplashParticles = createLakeSplashPArticles(this);
     alternativeLake1SplashParticles.billboardMode = BABYLON.ParticleSystem.BILLBOARDMODE_STRETCHED;
     alternativeLake1SplashParticles.minInitialRotation = -Math.PI;
     alternativeLake1SplashParticles.maxInitialRotation = Math.PI;
@@ -108,6 +109,8 @@ export default class MainScene extends BABYLON.Scene {
     ventParticles.emitRate = 50;
     ventParticles.renderingGroupId = 1;
     ventParticles.blendMode = BABYLON.ParticleSystem.BLENDMODE_STANDARD;
+
+    const debrisParticles = createDebrisPArticles(this, 7, 1.25);
 
     const lavaMaterial = new LavaMaterial("LavaMaterial");
     const lakeMaterial = new LavaMaterial("LakeMaterial");
@@ -252,6 +255,9 @@ export default class MainScene extends BABYLON.Scene {
       false,
       false
     );
+    smokeTextureTask.onSuccess = task => {
+      setupAnimationSheet(smokeParticles, task.texture, 512, 512, 8, 8, 5, true);
+    };
 
     const flareTextureTask = this.assetsManager.addTextureTask(
       "flareTextureTask",
@@ -259,6 +265,9 @@ export default class MainScene extends BABYLON.Scene {
       false,
       false
     );
+    flareTextureTask.onSuccess = task => {
+      debrisParticles.particleTexture = task.texture;
+    };
 
     const flameBlastTextureTask = this.assetsManager.addTextureTask(
       "flameBlastTextureTask",
@@ -266,27 +275,10 @@ export default class MainScene extends BABYLON.Scene {
       false,
       false
     );
-
-    // BABYLON.ParticleHelper.CreateAsync("explode", this).then(set => {
-      smokeTextureTask.onSuccess = task => {
-        // set.systems[0]["subEmitters"][0][1].particleSystem.particleTexture = task.texture;
-        // set.systems[1].particleTexture = task.texture;
-        // set.systems[2].particleTexture = task.texture;
-        // set.systems[3].particleTexture = task.texture;
-        // set.start();
-
-        setupAnimationSheet(smokeParticles, task.texture, 512, 512, 8, 8, 5, true);
-      };
-
-      // flareTextureTask.onSuccess = task => {
-      //   set.systems[0].particleTexture = task.texture;
-      // };
-      //
-      // flameBlastTextureTask.onSuccess = task => {
-      //   set.systems[0]["subEmitters"][0][0].particleSystem.particleTexture = task.texture;
-        // setupAnimationSheet(fireballParticles, task.texture, 512, 512, 4, 4, 5, true);
-      // };
-    // });
+    flameBlastTextureTask.onSuccess = task => {
+      console.log(debrisParticles.subEmitters[0])
+      setupAnimationSheet(debrisParticles.subEmitters[0]["particleSystem"] as BABYLON.ParticleSystem, task.texture, 512, 512, 4, 4, 5, true);
+    };
 
     const meshTaskVolcano = this.assetsManager.addContainerTask(
       "meshTaskVolcano",
@@ -396,35 +388,19 @@ export default class MainScene extends BABYLON.Scene {
     this.assetsManager.onFinish = () => {
       smokeParticles.start();
       ventParticles.start();
-      // fireballParticles.start();
-      (lakeMaterial.getBlockByName("Time") as BABYLON.InputBlock).onValueChangedObservable.add(InputBlock => {
-        if (InputBlock.value > 0.75) {
-          if (!rightSplashParticles.isStarted()) {
-            rightSplashParticles.start();
-          }
-          if (!leftSplashParticles.isStarted()) {
-            leftSplashParticles.start();
-          }
-        }
+      debrisParticles.start(90);
+      rightSplashParticles.start();
+      leftSplashParticles.start();
+      downSplashParticles.start();
+      lakeSplashParticles.start();
+      alternativeLakeSplashParticles.start();
+      lake0SplashParticles.start();
+      alternativeLake0SplashParticles.start();
+      lake1SplashParticles.start();
+      alternativeLake1SplashParticles.start();
 
-        if (InputBlock.value > 2.5) {
-          if (!downSplashParticles.isStarted()) {
-            downSplashParticles.start();
-          }
-        }
-        if (InputBlock.value > 5.525) {
-          lakeSplashParticles.start();
-          alternativeLakeSplashParticles.start();
-          lake0SplashParticles.start();
-          alternativeLake0SplashParticles.start();
-          lake1SplashParticles.start();
-          alternativeLake1SplashParticles.start();
-          InputBlock.onValueChangedObservable.clear();
-        }
-      })
       this.executeWhenReady(() => {
         this.onAfterRenderObservable.addOnce(() => {
-          console.log(optimizer);
           optimizer.start();
         })
       })
